@@ -1,0 +1,4 @@
+﻿  main.cpp
+C:\Users\Fabrizio\Documents\GitHub\Compiladores-2019-02\Compiladores-2019-02\Practica0\main.cpp(177,20): warning C4018:  '<': signed/unsigned mismatch
+C:\Users\Fabrizio\Documents\GitHub\Compiladores-2019-02\Compiladores-2019-02\Practica0\main.cpp(439,10): warning C4018:  '<': signed/unsigned mismatch
+  Practica0.vcxproj -> C:\Users\Fabrizio\Documents\GitHub\Compiladores-2019-02\Compiladores-2019-02\Practica0\Debug\Practica0.exe
