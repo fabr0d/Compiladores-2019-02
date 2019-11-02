@@ -10,6 +10,7 @@
 #include <map>
 #include <queue>
 #include <stack>
+
 //#include <string.h> //strncpy
 
 using namespace std;
@@ -25,7 +26,6 @@ queue<string> separateValues(string input, char label) {
 	}
 	return values;
 }
-
 
 //AL Begin
 
@@ -228,25 +228,25 @@ vector<Token> analizadorLexico(char* linea) {
 //AL End
 
 //Analizadores sintáctico descendente recursivo predictivo INICIO
-class ProdContexto
+class tokenContext
 {
+public:
 	string nombre;
 	map<string, string> contexto;
-	bool act = false;
+	bool isTerminal;
 };
 
 class Produccion
 {
 public:
-	//ProdContexto izq;
-	string izq;
-	vector<string> der;
+	tokenContext izq;
+	vector<tokenContext> der;
 };
 
 class Gramatica
 {
 public:
-	vector<Produccion> production;
+	vector<Produccion> productiones;
 	set<string> terminales;
 	set<string> noterminales;
 	string estadoInicial;
@@ -259,13 +259,92 @@ void printSet(set<string> list)
 	cout << endl;
 }
 
-void printVector(vector<string> vec)
+void printVector(vector<tokenContext> vec)
 {
 	for (int i = 0; i < vec.size(); i++)
 	{
-		cout << vec[i] << " ";
+		cout << vec[i].nombre << " ";
 	}
 	cout << endl;
+}
+
+tokenContext GenTokenContext(string text)
+{
+	text.erase(remove_if(text.begin(), text.end(), ::isspace), text.end()); //borrar espacios
+	//tendremos un string con la estructura: texto [ contexto ]
+	string corI("[");
+	string corD("]");
+
+	size_t foundCI = text.find(corI);
+	size_t foundCD = text.find(corD);
+
+	if (foundCI == -1 && foundCD == -1) // es un terminal y no tiene contexto
+	{
+		tokenContext temp;
+		temp.nombre = text;
+		temp.isTerminal = true;
+		return temp;
+	}
+	else
+	{
+		string texto = text.substr(0, foundCI - 0);
+		string contexto = text.substr(foundCI + 1, foundCD - foundCI - 1);
+
+		string coma(",");
+		size_t foundCOMA = contexto.find(coma);
+
+		if (foundCOMA == -1) //no hay comas
+		{
+			tokenContext temp2;
+			temp2.nombre = texto;
+			temp2.isTerminal = false;
+
+			string igual("=");
+			size_t foundIG = contexto.find(igual);
+			//categoria = valor
+			string categoria = contexto.substr(0, foundIG);
+			string valor = contexto.substr(foundIG + 1, (contexto.size() - 1) - foundIG);
+
+			map<string, string>::iterator it = temp2.contexto.begin();
+			temp2.contexto.insert(it, pair<string, string>(categoria, valor));
+			return temp2;
+		}
+		else				//hay comas
+		{
+			tokenContext temp3;
+			temp3.nombre = texto;
+			temp3.isTerminal = false;
+
+			vector<string> varioscontextos;
+
+			//separo el string por sus comas
+			string stempcon = contexto;
+			string delimiter = ",";
+			size_t pos = 0;
+			string token;
+			while ((pos = stempcon.find(delimiter)) != string::npos)
+			{
+				token = stempcon.substr(0, pos);
+				varioscontextos.push_back(token);
+				stempcon.erase(0, pos + delimiter.length());
+			}
+			varioscontextos.push_back(stempcon);
+
+			//inserto los contextos en el map
+			for (size_t i = 0; i < varioscontextos.size(); i++)
+			{
+				string igual("=");
+				size_t foundIG = varioscontextos[i].find(igual);
+				//categoria = valor
+				string categoria = varioscontextos[i].substr(0, foundIG);
+				string valor = varioscontextos[i].substr(foundIG + 1, (varioscontextos[i].size() - 1) - foundIG);
+
+				map<string, string>::iterator it = temp3.contexto.begin();
+				temp3.contexto.insert(it, pair<string, string>(categoria, valor));
+			}
+			return temp3;
+		}
+	}
 }
 
 Gramatica getGram(vector<string> grammar)
@@ -285,53 +364,57 @@ Gramatica getGram(vector<string> grammar)
 
 		//derecha es la parte despues del delimitador(no terminales)
 		string izquierda = grammar[i].substr(0, found - 1);
-		izquierda.erase(remove_if(izquierda.begin(), izquierda.end(), ::isspace), izquierda.end());
+		izquierda.erase(remove_if(izquierda.begin(), izquierda.end(), ::isspace), izquierda.end());//borrar espacios
 
-
+		//Subdivide el string derecho por espacios y los almacena en un vector
 		vector<string> derecha_list;
 		istringstream iss(derecha);
 		for (string derecha; iss >> derecha; )
 		{
 			derecha_list.push_back(derecha);
 		}
-		cout << "derechas / posibles no terminales y terminales: ";
-		printVector(derecha_list);		
 
-		//verificar si hay operador "|"
-		vector<vector<string>> derechas_por_o;
-		vector<string> temporal;//string temporal
+		//verificar si hay operador "|" y lo vuelve a subdividir
+		vector<vector<tokenContext>> derechas_por_o;
+		vector<tokenContext> temporal;	//string temporal
 		while (derecha_list.size() > 0)
 		{
 			if (derecha_list[0] == "|")
 			{
-				//cout << "se encontro una o" << endl;
-				derecha_list.erase(derecha_list.begin());//borra el primero
+				//se encontro una "|"
+				derecha_list.erase(derecha_list.begin());	//borra el primero
 				derechas_por_o.push_back(temporal);
 				temporal.clear();
 			}
 			else
 			{
-				//cout << "no es una o asi que fresh" << endl;
-				temporal.push_back(derecha_list[0]);
+				//no se encontro una "|"
+				temporal.push_back(GenTokenContext(derecha_list[0]));
 				derecha_list.erase(derecha_list.begin());
 				if (derecha_list.size() == 0)
 				{
-					//cout << "se vacio todas las derechas" << endl;
+					//se vacio todas las derechas
 					derechas_por_o.push_back(temporal);
 					temporal.clear();
 				}
 			}
 		}
-		//cout << "numero de derechas separadas por el o: " <<derechas_por_o.size()<< endl;
-		//gen produccion
+
+		//tenemos a un string en izquierda
+		//tenemos un vector de string de derechas que corresponden al string izquierdo
+
+		//generaremos un tokenContext
+		tokenContext tempIzq = GenTokenContext(izquierda);
+
+		//Generacion de las producciones
 		for (int i = 0; i < derechas_por_o.size(); i++)
 		{
 			Produccion p1;
-			p1.izq = izquierda;
+			p1.izq = tempIzq;
 			p1.der = derechas_por_o[i];
 
 			//send produccion to grammar
-			rpta.production.push_back(p1);
+			rpta.productiones.push_back(p1);
 		}
 	}
 
@@ -340,20 +423,20 @@ Gramatica getGram(vector<string> grammar)
 	set<string>terminalesrtpa;
 	set<string>noterminalesrtpa;
 	//verificar cuales son terminales o no terminales
-	for (int i = 0; i < rpta.production.size(); i++)
+	for (int i = 0; i < rpta.productiones.size(); i++)
 	{
-		terminalesrtpa.insert(rpta.production[i].izq);
+		terminalesrtpa.insert(rpta.productiones[i].izq.nombre);
 	}
 	rpta.terminales = terminalesrtpa;
-	for (int i = 0; i < rpta.production.size(); i++)
+	for (int i = 0; i < rpta.productiones.size(); i++)
 	{
-		for (int j = 0; j < rpta.production[i].der.size(); j++)
+		for (int j = 0; j < rpta.productiones[i].der.size(); j++)
 		{
 			//Si no hay ocurrencias en mi set de terminales de la produccion de la derecha
-			if (rpta.terminales.count(rpta.production[i].der[j]) == 0)
+			if (rpta.terminales.count(rpta.productiones[i].der[j].nombre) == 0)
 			{
 				//lo meto en el set de no terminales
-				rpta.noterminales.insert(rpta.production[i].der[j]);
+				rpta.noterminales.insert(rpta.productiones[i].der[j].nombre);
 			}
 		}
 	}
@@ -363,16 +446,16 @@ Gramatica getGram(vector<string> grammar)
 
 void printProduccion(Produccion pro)
 {
-	cout << pro.izq << " := ";
+	cout << pro.izq.nombre << " := ";
 	printVector(pro.der);
 }
 
 void printGramatica(Gramatica grammar)
 {
 	cout << "Producciones: " << endl;
-	for (int i = 0; i < grammar.production.size(); i++)
+	for (int i = 0; i < grammar.productiones.size(); i++)
 	{
-		printProduccion(grammar.production[i]);
+		printProduccion(grammar.productiones[i]);
 	}
 	cout << endl;
 	cout << "Terminales: " << endl;
@@ -477,7 +560,7 @@ int main() {
 
 	Gramatica Grammar1 = getGram(grammar);
 	cout << endl;
-	//printGramatica(Grammar1);
+	printGramatica(Grammar1);
 
 	/*AnalizadorSintacticoLL1 ll1;
 	ll1.llenarTAS();
