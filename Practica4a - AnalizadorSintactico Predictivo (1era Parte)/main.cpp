@@ -223,7 +223,8 @@ public:
 class Gramatica 
 {
 public:
-	vector<Produccion> production;
+	string estadoinicial;
+	vector<Produccion> producciones;
 	set<string> terminales;
 	set<string> noterminales;
 };
