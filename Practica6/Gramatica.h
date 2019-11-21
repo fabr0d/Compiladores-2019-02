@@ -15,6 +15,12 @@ public:
 	set<string> terminales;
 	set<string> noterminales;
 	Gramatica() = default;
-	Gramatica(string estado_inicial, vector<Produccion> producciones, Produccion dummy, set<string> terminales, set<string> noterminales);
+	Gramatica(
+		string estado_inicial, 
+		vector<Produccion> producciones, 
+		Produccion dummy, 
+		set<string> terminales,
+		set<string> noterminales
+	);
 	void print();
 };

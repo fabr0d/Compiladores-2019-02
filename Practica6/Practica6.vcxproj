@@ -123,12 +123,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Compiler.cpp" />
+    <ClCompile Include="getGram.cpp" />
     <ClCompile Include="Gramatica.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Produccion.cpp" />
     <ClCompile Include="tokenContext.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Compiler.h" />
+    <ClInclude Include="EstadoCompilador.h" />
+    <ClInclude Include="getGram.h" />
     <ClInclude Include="Gramatica.h" />
     <ClInclude Include="Produccion.h" />
     <ClInclude Include="tokenContext.h" />
