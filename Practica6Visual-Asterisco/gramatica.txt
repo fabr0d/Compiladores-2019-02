@@ -1,0 +1,5 @@
+Palabra[gen=?g,num=?b] -> Det[gen=?g] Sustantivo[gen=?g]
+Det[gen=f] -> 'la'
+Det[gen=m] -> 'el'
+Sustantivo[gen=f] -> 'ninha'
+Sustantivo[gen=m] -> 'ninho'

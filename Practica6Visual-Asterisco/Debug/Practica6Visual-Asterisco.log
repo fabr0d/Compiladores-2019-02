@@ -1,0 +1,8 @@
+﻿  main.cpp
+C:\Users\fabro\OneDrive\Documentos\GitHub\Compiladores-2019-02\Practica6Visual-Asterisco\Grammar.h(79,23): warning C4018:  '<': signed/unsigned mismatch
+C:\Users\fabro\OneDrive\Documentos\GitHub\Compiladores-2019-02\Practica6Visual-Asterisco\Table.h(35,12): warning C4018:  '<': signed/unsigned mismatch
+C:\Users\fabro\OneDrive\Documentos\GitHub\Compiladores-2019-02\Practica6Visual-Asterisco\Compiler.h(55,32): warning C4018:  '>=': signed/unsigned mismatch
+C:\Users\fabro\OneDrive\Documentos\GitHub\Compiladores-2019-02\Practica6Visual-Asterisco\Compiler.h(66,32): warning C4018:  '<': signed/unsigned mismatch
+C:\Users\fabro\OneDrive\Documentos\GitHub\Compiladores-2019-02\Practica6Visual-Asterisco\Compiler.h(86,20): warning C4018:  '<': signed/unsigned mismatch
+C:\Users\fabro\OneDrive\Documentos\GitHub\Compiladores-2019-02\Practica6Visual-Asterisco\Compiler.h(89,9): warning C4018:  '>': signed/unsigned mismatch
+  Practica6Visual-Asterisco.vcxproj -> C:\Users\fabro\OneDrive\Documentos\GitHub\Compiladores-2019-02\Practica6Visual-Asterisco\Debug\Practica6Visual-Asterisco.exe
